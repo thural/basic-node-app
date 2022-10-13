@@ -1,15 +1,15 @@
 const http = require('http');
-const { readFile } = require('fs');
+const { readFile } = require('fs').promises;
 
-// create load page promise
-const loadPage = (path) => {
-  return new Promise((resolve, reject) => {
-    readFile(path, 'utf-8', (error, data) => {
-      if (error) reject(error)
-      else resolve(data)
-    })
-  })
-};
+// // create load page promise
+// const loadPage = (path) => {
+//   return new Promise((resolve, reject) => {
+//     readFile(path, 'utf-8', (error, data) => {
+//       if (error) reject(error)
+//       else resolve(data)
+//     })
+//   })
+// };
 
 // const startLoad = async (req, res, path) => {
 //   try {
@@ -25,7 +25,23 @@ const loadPage = (path) => {
 
 const server = http.createServer((req, res) => {
 
-  loadPage(req.url === '/' ? './index.html' : `.${req.url}.html`)
+  // //using a custom promise
+  // loadPage(req.url === '/' ? './index.html' : `.${req.url}.html`)
+  //   .then(data => {
+  //     res.writeHead(200, { 'Content-Type': 'text/html' });
+  //     res.write(data);
+  //     return res.end
+  //   })
+  //   .catch(error => {
+  //     console.log(error);
+  //     res.end
+  //   });
+
+  // startLoad(req, res, (req.url === '/' ? './index.html' : `.${req.url}.html`))
+
+
+  // using a built in promise from fs promises
+  readFile((req.url === '/' ? './index.html' : `.${req.url}.html`), 'utf-8')
     .then(data => {
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.write(data);
@@ -35,8 +51,6 @@ const server = http.createServer((req, res) => {
       console.log(error);
       res.end
     });
-
-  // startLoad(req, res, (req.url === '/' ? './index.html' : `.${req.url}.html`))
 
   res.end
 
