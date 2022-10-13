@@ -1,39 +1,50 @@
 const http = require('http');
-const fs = require('fs');
+const { readFile } = require('fs');
 
-const server = http.createServer((req,res)=>{
-  if(req.url==='/'){
-      fs.readFile('index.html',function(err,data){
-          if (err) throw err;
-          res.writeHead(200,{'Content-Type':'text/html'});
-          res.write(data);
-          return res.end;
-      });
-  }
-  else if(req.url==='/about'){
-      fs.readFile('about.html',function(err,data){
-          if (err) throw err;
-          res.writeHead(200,{'Content-Type':'text/html'});
-          res.write(data);
-          return res.end;
-      });
-  }
-  else if(req.url==='/contact'){
-      fs.readFile('contact.html',function(err,data){
-          if (err) throw err;
-          res.writeHead(200,{'Content-Type':'text/html'});
-          res.write(data);
-          return res.end;
-      });
-  }
-  else{
-      fs.readFile('404.html',function(err,data){
-          if (err) throw err;
-          res.writeHead(200,{'Content-Type':'text/html'});
-          res.write(data);
-          return res.end;
-      });
-  }
+// create load page promise
+const loadPage = (path) => {
+  return new Promise((resolve, reject) => {
+    readFile(path, 'utf-8', (error, data) => {
+      if (error) reject(error)
+      else resolve(data)
+    })
+  })
+};
+
+// const startLoad = async (req, res, path) => {
+//   try {
+//     const data = await loadPage(path);
+//     res.writeHead(200, { 'Content-Type': 'text/html' });
+//     res.write(data);
+//     return res.end
+//   } catch (error) {
+//     console.log(error);
+//     res.end
+//   }
+// };
+
+const server = http.createServer((req, res) => {
+
+  loadPage(req.url === '/' ? './index.html' : `.${req.url}.html`)
+    .then(data => {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.write(data);
+      return res.end
+    })
+    .catch(error => {
+      console.log(error);
+      res.end
+    });
+
+  // startLoad(req, res, (req.url === '/' ? './index.html' : `.${req.url}.html`))
+
+  res.end
+
+  // res.end(`
+  //   <h1>Oops!</h1>
+  //   <p>We can't seem to find the page you are looking for</p>
+  //   <a href="/">back home</a>
+  //   `)
 })
 
 server.listen(5000)
