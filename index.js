@@ -54,9 +54,6 @@ const server = http.createServer((req, res) => {
   //     res.end
   //   });
 
-  //using one liner async await func
-  startLoad(req, res, filePath);
-
   // // using a built in promise from fs promises
   // readFile(filePath, 'utf-8')
   //   .then(data => {
@@ -74,6 +71,9 @@ const server = http.createServer((req, res) => {
   //   <a href="/">back home</a>
   //   `)
   //   });
+
+  //using one liner async await func
+  startLoad(req, res, filePath);
 
   res.end
 
