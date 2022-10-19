@@ -34,7 +34,7 @@ const { readFile } = require('fs');
 
 const server = http.createServer((req, res) => {
 
-  const filePath = (req.url === '/' ? './index.html' : `.${req.url}`);
+  const filePath = (req.url === '/' ? './public/index.html' : `./public/${req.url}`);
 
   // Extension of file
   let extname = filePath.match(/\.\w+$/)[0] // regex is good :)
