@@ -1,0 +1,10 @@
+body {
+  background-color: whitesmoke;
+  padding: 4rem;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
