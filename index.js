@@ -1,10 +1,13 @@
 const express = require('express');
 const app = express();
 
-app.use(express.static('./public'));
+const users = [
+  {name: "John", age:33},
+  {name: "Lily", age:30}
+]
 
-app.all('*', (req, res) => {
-  res.status(404).send('resource not found');
+app.get('/', (req, res) => {
+  res.json(users);
 })
 
 app.listen(5000)
