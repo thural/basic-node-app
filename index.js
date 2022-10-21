@@ -1,49 +1,45 @@
+const { db } = require('./database');
 const express = require('express');
 const app = express();
 
-const users = [
-  {
-    id: 0,
-    name: "John",
-    age: 33,
-    comments: [
-      {
-        date: 01022020,
-        postID: 316751,
-        text: "lorem ipsum ..."
-      }
-    ]
-  },
-  {
-    id: 1,
-    name: "Lily",
-    age: 30,
-    comments: [
-      {
-        date: 03042020,
-        postID: 314713,
-        text: "lorem ipsum ..."
-      }
-    ]
-  }
-]
-
 app.use(express.static('./public'))
 
-app.get('/users/:userID', (request, response) => {
-  const { userID } = request.params
-  const document = users.find(user => user.id == +userID)
-  if (!document) return response.status(404).send('error, document not found')
-  response.json(document);
+// Get a collection using a hardcoded directory
+app.get('/api', (request, response) => {
+  const collections = db;
+  if (!collections) return response.status(404).send('Error, collections not found')
+  response.json(collections);
 })
 
-app.get('/users/:userID/comments/:postID', (request, response) => {
-  const { userID, postID } = request.params
-  const user = users.find(elem => elem.id == +userID)
-  const comment = user.comments.find(elem => elem.postID == +postID)
-  console.log(comment)
-  if (!comment) return response.status(404).send('error, comment not found')
+// Get a collection dynamically using :param
+app.get('/api/:collection', (request, response) => {
+  const { collection } = request.params;
+  const data = db[collection];
+  if (!data) return response.status(404).send('Error, collection not found')
+  response.json(data);
+})
+
+// Get documents using nested directory and :params
+app.get('/api/users/:userID/comments/:commentID', (request, response) => {
+  const { userID, commentID } = request.params
+  const user = db.users.find(elem => elem.id == +userID)
+  const comment = user.comments.find(elem => elem.commentID == +commentID)
+  if (!comment) return response.status(404).send('Error, comment not found')
   response.json(comment);
 })
 
-app.listen(5000)
+// Get data using a query?
+app.get('/api/:collection/query?', (request, response) => {
+  const query = request.query;
+  const { collection } = request.params;
+  const documents = db[collection].filter(elem => {
+    return (Object.keys(query)).every(tag => query[tag] == elem[tag])
+  });
+  response.json(documents);
+})
+
+app.all('*', (req, res) => {
+  res.status(404).send('Error 404, Page not found');
+})
+
+app.listen(5000);
