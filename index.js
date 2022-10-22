@@ -10,6 +10,9 @@ app.use(express.static('./public'))
 // parse form data
 app.use(express.urlencoded({extended:false}))
 
+// parse json
+app.use(express.json())
+
 // use a middleware on all routes
 app.use(logger);
 
