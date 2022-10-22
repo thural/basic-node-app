@@ -1,9 +1,14 @@
 const { logger, authorize } = require('./middleware');
 const { db } = require('./database');
 const express = require('express');
+const { request, response } = require('express');
 const app = express();
 
+// serve files from public folder
 app.use(express.static('./public'))
+
+// parse form data
+app.use(express.urlencoded({extended:false}))
 
 // use a middleware on all routes
 app.use(logger);
@@ -44,6 +49,12 @@ app.get('/api/:collection/query?', (request, response) => {
   });
   if (!documents.length) return response.status(200).json({ success: true, data: [] });
   response.status(200).json(documents);
+})
+
+app.post('/login', (request, response) => {
+  const name = request.body;
+  if(name) return response.status(200).send(`Welcome ${name}`);
+  response.status(401).send('Please provide credentials')
 })
 
 app.all('*', (req, res) => {
