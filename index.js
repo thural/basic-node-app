@@ -14,16 +14,16 @@ app.use(express.urlencoded({extended:false}))
 app.use(logger);
 
 // use a middleware on a route
-app.use('/api/users', authorize);
+app.use('/login', authorize);
 
-// Get a collection using a hardcoded directory
+// Get collections using a hardcoded directory
 app.get('/api', (request, response) => {
   const collections = db;
   if (!collections) return response.status(200).send('Error, collections not found')
   response.status(200).json(collections);
 })
 
-// Get documents using nested directory and :params
+// Get documents using nested (virtual) directory and :params
 app.get('/api/users/:name/comments/:commentID', (request, response) => {
   const { name, commentID } = request.params;
   const user = db.users.find(elem => elem["name"] == name);
@@ -32,7 +32,7 @@ app.get('/api/users/:name/comments/:commentID', (request, response) => {
   response.status(200).json(comment);
 })
 
-// Get a collection dynamically using :param
+// Get a collection using :param
 app.get('/api/:collection', (request, response) => {
   const { collection } = request.params;
   const data = db[collection];
@@ -51,10 +51,10 @@ app.get('/api/:collection/query?', (request, response) => {
   response.status(200).json(documents);
 })
 
+// repond to a post method from a form submission
 app.post('/login', (request, response) => {
-  const name = request.body;
-  if(name) return response.status(200).send(`Welcome ${name}`);
-  response.status(401).send('Please provide credentials')
+  //const {name, password} = request.body;
+  //response.status(401).send('Please provide credentials')
 })
 
 app.all('*', (req, res) => {

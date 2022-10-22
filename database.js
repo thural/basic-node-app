@@ -3,6 +3,7 @@ module.exports.db = {
     {
       id: 0,
       name: "John",
+      password: "lemon123",
       age: 33,
       comments: [
         {
@@ -15,6 +16,7 @@ module.exports.db = {
     {
       id: 1,
       name: "Lily",
+      password: "mango123",
       age: 30,
       comments: [
         {

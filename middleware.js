@@ -1,3 +1,5 @@
+const { db } = require("./database");
+
 const logger = (request, response, next) => {
   console.log(
     request.url,
@@ -8,14 +10,14 @@ const logger = (request, response, next) => {
 };
 
 const authorize = (request, response, next) => {
-  const { name } = request.query;
-  console.log('name: ', name, 'random ', Math.random());
-  if (name === "John" || name === "Lily") {
-    request.user = { name, "id": 1 }
-    next()
-  } else {
-    response.status(401).send("Unauthorized")
-  }
+  const { name, password } = request.body;
+  const userDocument = db.users.find(user => user["name"] == name);
+  if(name && password) {
+    if (userDocument["password"] == password) {
+      response.status(200).send(`Welcome ${name}`);
+      next()
+    } else return response.status(401).send("Incorrect password")
+  } else response.status(401).send("Incorrect login")
 };
 
 module.exports = {
