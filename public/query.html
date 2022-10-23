@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles.css ">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"
+    integrity="sha512-u9akINsQsAkG9xjc1cnGF4zw5TFDwkxuc9vUp5dltDWYCSmyd0meygbvgXrlc/z7/o4a19Fb5V0OUE58J7dcyw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+  <form>
+    <h3>Search form</h3>
+    <div class="input-field">
+      <label for="name">Enter name</label>
+      <input type="text" name="name" id="name" autocomplete="false" required>
+    </div>
+    <button type="submit">Search</button>
+    <div class="users">loading ...</div>
+    <div class="result"> search result will appear here </div>
+  </form>
+</body>
+<script>
+  //fetch user names from server and display on users field
+  const users = document.querySelector('.users');
+  const fetchUsers = async () => {
+    try {
+      const { data } = await axios.get('api/users');
+      const userList = data.map(user => `<h3>${user.name}</h3>`)
+      users.innerHTML = userList.join("")
+    } catch (error) {
+      users.innerHTML = `<h2>Can not fetch data</h2>`
+    }
+  };
+  fetchUsers();
+
+  // submit a post request that includes name value,
+  // which will be handled by post method on the server
+  const btn = document.querySelector('form > button');
+  const input = document.querySelector('input[name="name"]');
+  const result = document.querySelector('.result')
+
+  btn.addEventListener('click', async (e) => {
+
+    e.preventDefault();
+    console.log('clicked');
+    const value = input.value;
+    result.innerHTML = '';
+
+    try {
+      const user = await axios.post('api/users', { name: value })
+      //console.log("user data: ", data);
+      Object.entries(user.data).forEach(([key, value]) => {
+        const paragraph = document.createElement('p');
+        if (key == "password") value = "<hidden>"
+        paragraph.textContent = `${key}: ${value}`;
+        result.appendChild(paragraph);  
+      })
+      //result.textContent = data;
+    } catch (error) {
+      result.textContent = error.response.data.msg
+    };
+
+    input.value = '';
+  })
+
+</script>
+
+</html>
