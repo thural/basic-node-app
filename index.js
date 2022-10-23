@@ -7,6 +7,24 @@ const app = express();
 // serve files from public folder
 app.use(express.static('./public'))
 
+// serve a single file
+app.get('/file/:name', (reqest, response, next) => {
+  const options = {
+    root: __dirname,
+    dotfiles: 'deny',
+    headers: {
+      'x-timestamp': Date.now(),
+      'x-sent': true
+    }
+  }
+
+  const fileName = reqest.params.name
+  response.sendFile(fileName, options, err => {
+    if (err) next(err)
+    else console.log('Sent:', fileName)
+  })
+})
+
 // parse form data
 app.use(express.urlencoded({extended:false}))
 
@@ -26,6 +44,14 @@ app.get('/api', (request, response) => {
   response.status(200).json(collections);
 })
 
+// Get a collection using :param
+app.get('/api/:collection', (request, response) => {
+  const { collection } = request.params;
+  const data = db[collection];
+  if (!data) return response.status(200).json({ success: true, data: [] })
+  response.status(200).json(data);
+})
+
 // Get documents using nested (virtual) directory and :params
 app.get('/api/users/:name/comments/:commentID', (request, response) => {
   const { name, commentID } = request.params;
@@ -33,14 +59,6 @@ app.get('/api/users/:name/comments/:commentID', (request, response) => {
   const comment = user.comments.find(elem => elem.commentID == +commentID);
   if (!comment) return response.status(200).json({ success: true, data: [] });
   response.status(200).json(comment);
-})
-
-// Get a collection using :param
-app.get('/api/:collection', (request, response) => {
-  const { collection } = request.params;
-  const data = db[collection];
-  if (!data) return response.status(200).json({ success: true, data: [] })
-  response.status(200).json(data);
 })
 
 // Get data using a query
@@ -57,6 +75,17 @@ app.get('/api/:collection/query?', (request, response) => {
 // repond to a post method from a form submission
 app.post('/login', (request, response) => {
   //const {name, password} = request.body;
+  //response.status(401).send('Please provide credentials')
+})
+
+// repond to a post method to query a user data
+app.post('/api/users', (request, response) => {
+  console.log("post request success");
+  const {name} = request.body;
+  const user = db["users"].find(elem => elem["name"] == name);
+  //console.log("user data from post: ", user);
+  if (!user) return response.status(400).json({ success: false, msg:"user not found" });
+  response.status(201).json(user);
   //response.status(401).send('Please provide credentials')
 })
 
