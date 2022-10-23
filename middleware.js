@@ -16,7 +16,7 @@ const authorize = (request, response, next) => {
     if (userDocument["password"] == password) {
       //response.status(201).send(`Welcome ${name}`);
       const options = {
-        root: __dirname + "/public",
+        root: __dirname + "/private",
         dotfiles: 'deny',
         headers: {
           'x-timestamp': Date.now(),
