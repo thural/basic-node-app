@@ -20,8 +20,8 @@
       <input type="text" name="name" id="name" autocomplete="false" required>
     </div>
     <button type="submit">Search</button>
-    <div class="users">loading ...</div>
-    <div class="result"> search result will appear here </div>
+    <div class="users">Loading ...</div>
+    <div class="result">Search result will appear here</div>
   </form>
 </body>
 <script>
@@ -30,10 +30,14 @@
   const fetchUsers = async () => {
     try {
       const { data } = await axios.get('api/users');
-      const userList = data.map(user => `<h3>${user.name}</h3>`)
-      users.innerHTML = userList.join("")
+      users.textContent = "Some users: ";
+      data.forEach(user => {
+        const span = document.createElement('span');
+        span.textContent = user.name + " ";
+        users.appendChild(span)
+      })
     } catch (error) {
-      users.innerHTML = `<h2>Can not fetch data</h2>`
+      users.textContent = 'Can not fetch data'
     }
   };
   fetchUsers();
