@@ -78,6 +78,17 @@ app.post('/login', (request, response) => {
   //response.status(401).send('Please provide credentials')
 })
 
+app.put('/api/users:user', (request, response) => {
+  const {...fields} = request.body;
+  const userName = request.params;
+  const entries = Object.entries(fields);
+  const indexOfUser = db.users.findIndex(user => user["name"] == userName);
+  if (indexOfUser !== -1) {
+    entries.forEach( ([key, value]) => db.users[indexOfUser][key] = value );
+    response.status(201).send('success')
+  } else return response.status(400).json({ success: false, msg:"user not found" });
+})
+
 // repond to a post method to query a user data
 app.post('/api/users', (request, response) => {
   console.log("post request success");
