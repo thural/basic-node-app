@@ -51,21 +51,20 @@
   btn.addEventListener('click', async (e) => {
 
     e.preventDefault();
-    console.log('clicked');
+    console.log("input: ", input.value);
     const value = input.value;
     result.innerHTML = '';
 
     try {
       const user = await axios.post('api/users', { name: value })
-      //console.log("user data: ", data);
       Object.entries(user.data).forEach(([key, value]) => {
         const paragraph = document.createElement('p');
         if (key == "password") value = "<hidden>"
         paragraph.textContent = `${key}: ${value}`;
-        result.appendChild(paragraph);  
+        result.appendChild(paragraph);
       })
-      //result.textContent = data;
     } catch (error) {
+      console.log(error);
       result.textContent = error.response.data.msg
     };
 

@@ -1,11 +1,23 @@
+const express = require('express');
 const { logger, authorize } = require('./middleware');
 const { db } = require('./database');
-const express = require('express');
-const { request, response } = require('express');
+const users = require('./routes/users');
+
+// the Express server app
 const app = express();
 
 // serve files from public folder
 app.use(express.static('./public'))
+// parse form data
+app.use(express.urlencoded({extended:false}))
+// parse json
+app.use(express.json())
+// use users router for /api/users
+app.use('/api/users', users)
+// use a middleware on all routes
+app.use(logger);
+// use a middleware on a route
+//app.use('/login', authorize);
 
 // serve a single file
 app.get('/file/:name', (reqest, response, next) => {
@@ -16,8 +28,7 @@ app.get('/file/:name', (reqest, response, next) => {
       'x-timestamp': Date.now(),
       'x-sent': true
     }
-  }
-
+  };
   const fileName = reqest.params.name
   response.sendFile(fileName, options, err => {
     if (err) next(err)
@@ -25,17 +36,10 @@ app.get('/file/:name', (reqest, response, next) => {
   })
 })
 
-// parse form data
-app.use(express.urlencoded({extended:false}))
-
-// parse json
-app.use(express.json())
-
-// use a middleware on all routes
-app.use(logger);
-
-// use a middleware on a route
-app.use('/login', authorize);
+// repond to a post method from a form submission
+app.post('/login', authorize, (request, response) => {
+  // response is handled by authorize middleware
+})
 
 // Get collections using a hardcoded directory
 app.get('/api', (request, response) => {
@@ -52,15 +56,6 @@ app.get('/api/:collection', (request, response) => {
   response.status(200).json(data);
 })
 
-// Get documents using nested (virtual) directory and :params
-app.get('/api/users/:name/comments/:commentID', (request, response) => {
-  const { name, commentID } = request.params;
-  const user = db.users.find(elem => elem["name"] == name);
-  const comment = user.comments.find(elem => elem.commentID == +commentID);
-  if (!comment) return response.status(200).json({ success: true, data: [] });
-  response.status(200).json(comment);
-})
-
 // Get data using a query
 app.get('/api/:collection/query?', (request, response) => {
   const query = request.query;
@@ -70,44 +65,6 @@ app.get('/api/:collection/query?', (request, response) => {
   });
   if (!documents.length) return response.status(200).json({ success: true, data: [] });
   response.status(200).json(documents);
-})
-
-// repond to a post method from a form submission
-app.post('/login', (request, response) => {
-  //const {name, password} = request.body;
-  //response.status(401).send('Please provide credentials')
-})
-
-// repond to a post method to query a user data
-app.post('/api/users', (request, response) => {
-  console.log("post request success");
-  const {name} = request.body;
-  const user = db["users"].find(elem => elem["name"] == name);
-  //console.log("user data from post: ", user);
-  if (!user) return response.status(400).json({ success: false, msg:"user not found" });
-  response.status(201).json(user);
-  //response.status(401).send('Please provide credentials')
-})
-
-app.put('/api/users:user', (request, response) => {
-  const {...fields} = request.body;
-  const id = request.params;
-  const entries = Object.entries(fields);
-  const indexOfUser = db.users.findIndex(user => user["name"] == +id);
-  if (indexOfUser !== -1) {
-    entries.forEach( ([key, value]) => db.users[indexOfUser][key] = value );
-    response.status(201).send('success')
-  } else return response.status(404).json({ success: false, msg:"user not found" });
-})
-
-app.delete('/api/users', (request, response) => {
-  const { id } = request.body
-  //const entries = Object.entries(fields);
-  const indexOfUser = db.users.findIndex(user => user["id"] == +id);
-  if (indexOfUser !== -1) {
-    db.users.splice(indexOfUser,1)
-    response.status(410).json({ success: true, msg:`deleted user with id: ${id}` });
-  } else return response.status(404).json({ success: false, msg:`no user with id: ${id}` });
 })
 
 app.all('*', (req, res) => {
