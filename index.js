@@ -89,6 +89,16 @@ app.put('/api/users:user', (request, response) => {
   } else return response.status(400).json({ success: false, msg:"user not found" });
 })
 
+app.delete('/api/users', (request, response) => {
+  const { userName } = request.body
+  //const entries = Object.entries(fields);
+  const indexOfUser = db.users.findIndex(user => user["name"] == userName);
+  if (indexOfUser !== -1) {
+    db.users.splice(indexOfUser,1)
+    response.status(410).send('deleted')
+  } else return response.status(400).json({ success: false, msg:"user not found" });
+})
+
 // repond to a post method to query a user data
 app.post('/api/users', (request, response) => {
   console.log("post request success");
