@@ -78,27 +78,6 @@ app.post('/login', (request, response) => {
   //response.status(401).send('Please provide credentials')
 })
 
-app.put('/api/users:user', (request, response) => {
-  const {...fields} = request.body;
-  const userName = request.params;
-  const entries = Object.entries(fields);
-  const indexOfUser = db.users.findIndex(user => user["name"] == userName);
-  if (indexOfUser !== -1) {
-    entries.forEach( ([key, value]) => db.users[indexOfUser][key] = value );
-    response.status(201).send('success')
-  } else return response.status(400).json({ success: false, msg:"user not found" });
-})
-
-app.delete('/api/users', (request, response) => {
-  const { userName } = request.body
-  //const entries = Object.entries(fields);
-  const indexOfUser = db.users.findIndex(user => user["name"] == userName);
-  if (indexOfUser !== -1) {
-    db.users.splice(indexOfUser,1)
-    response.status(410).send('deleted')
-  } else return response.status(400).json({ success: false, msg:"user not found" });
-})
-
 // repond to a post method to query a user data
 app.post('/api/users', (request, response) => {
   console.log("post request success");
@@ -108,6 +87,27 @@ app.post('/api/users', (request, response) => {
   if (!user) return response.status(400).json({ success: false, msg:"user not found" });
   response.status(201).json(user);
   //response.status(401).send('Please provide credentials')
+})
+
+app.put('/api/users:user', (request, response) => {
+  const {...fields} = request.body;
+  const id = request.params;
+  const entries = Object.entries(fields);
+  const indexOfUser = db.users.findIndex(user => user["name"] == +id);
+  if (indexOfUser !== -1) {
+    entries.forEach( ([key, value]) => db.users[indexOfUser][key] = value );
+    response.status(201).send('success')
+  } else return response.status(404).json({ success: false, msg:"user not found" });
+})
+
+app.delete('/api/users', (request, response) => {
+  const { id } = request.body
+  //const entries = Object.entries(fields);
+  const indexOfUser = db.users.findIndex(user => user["id"] == +id);
+  if (indexOfUser !== -1) {
+    db.users.splice(indexOfUser,1)
+    response.status(410).json({ success: true, msg:`deleted user with id: ${id}` });
+  } else return response.status(404).json({ success: false, msg:`no user with id: ${id}` });
 })
 
 app.all('*', (req, res) => {
