@@ -18,7 +18,7 @@ const deleteUser = (request, response) => {
 
 const updateUser = (request, response) => {
   const { ...fields } = request.body;
-  const id = request.params;
+  const { id } = request.params;
   const entries = Object.entries(fields);
   const indexOfUser = db.users.findIndex(user => user["name"] == +id);
   if (indexOfUser !== -1) {

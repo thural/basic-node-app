@@ -38,11 +38,23 @@ app.get('/file/:name', (reqest, response, next) => {
 
 // repond to a post method from a form submission
 app.post('/login', authorize, (request, response) => {
-  // response is handled by authorize middleware
+  const options = {
+    root: __dirname + "/private",
+    dotfiles: 'deny',
+    headers: {
+      'x-timestamp': Date.now(),
+      'x-sent': true
+    }
+  };
+  const fileName = "query.html";
+  response.sendFile(fileName, options, err => {
+    if (err) next(err)
+    else console.log('Sent:', fileName)
+  })
 })
 
 // Get collections using a hardcoded directory
-app.get('/api', (request, response) => {
+app.get('/api/collections', (request, response) => {
   const collections = db;
   if (!collections) return response.status(200).send('Error, collections not found')
   response.status(200).json(collections);
@@ -67,8 +79,8 @@ app.get('/api/:collection/query?', (request, response) => {
   response.status(200).json(documents);
 })
 
-app.all('*', (req, res) => {
-  res.status(404).send('Error 404, Page not found');
+app.all('*', (request, response) => {
+  response.status(404).send('Error 404, Page not found');
 })
 
 app.listen(5000);
